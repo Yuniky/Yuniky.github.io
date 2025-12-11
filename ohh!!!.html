@@ -1,11 +1,123 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>卡加布列島</title>
-    <link rel="icon" href="雞.PNG">
-  </head>
-  <body>
-     哇 下雨了 
-  </body>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>卡加布列島互動小雞</title>
+<style>
+body { text-align:center; font-family:Arial; background-color:#aee2ff; }
+#map-area { position:relative; display:inline-block; }
+#island { width:650px; }
+#chicken { position:absolute; width:80px; left:50%; top:50%; transform:translate(-50%,-50%); transition: all 0.3s ease; z-index:5; }
+button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer; }
+#msg { margin-top:10px; font-size:20px; color:#333; height:28px; }
+</style>
+</head>
+<body>
+
+<h1>卡加布列島 模擬地圖</h1>
+
+<div id="map-area">
+    <img id="island" src="卡加布列島.PNG">
+    <img id="chicken" src="雞.PNG">
+</div>
+
+<div id="msg"></div>
+
+<button onclick="run()">🏃 跑</button>
+<button onclick="dance()">💃 動滋動滋</button>
+<button onclick="drink()">🥤 口渴</button>
+<button onclick="stopAll()">■ STOP</button>
+
+<script>
+const chicken = document.getElementById("chicken");
+const msg = document.getElementById("msg");
+const island = document.getElementById("island");
+
+let interval = null;
+let running = false;
+
+// 島半徑(像素) 假設圓形島，控制雞不要跑出範圍
+const islandRadius = 250;
+
+// 工具：把雞移到指定偏移量位置
+function updateChicken(x, y, rotate=0){
+    chicken.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${rotate}deg)`;
+}
+
+// 回中央並倒頭睡
+function goCenterSleep(){
+    updateChicken(0,0,180);
+    msg.textContent = "倒頭就睡";
+}
+
+// 停止所有動作
+function stopAll(){
+    if(interval) clearInterval(interval);
+    interval = null;
+    running = false;
+    msg.textContent = "已停止";
+}
+
+// 隨機生成島內偏移量
+function randomPointInIsland(){
+    let angle = Math.random() * 2 * Math.PI;
+    let r = Math.random() * islandRadius;
+    return {
+        x: Math.round(Math.cos(angle) * r),
+        y: Math.round(Math.sin(angle) * r)
+    };
+}
+
+// 跑動：雞在島上亂跑
+function run(){
+    stopAll();
+    msg.textContent = "跑步中...";
+    running = true;
+
+    interval = setInterval(()=>{
+        let pt = randomPointInIsland();
+        updateChicken(pt.x, pt.y, 0);
+    }, 300);
+
+    setTimeout(()=>{
+        stopAll();
+        goCenterSleep();
+    }, 4000);
+}
+
+// 扭動：雞原地左右搖晃
+function dance(){
+    stopAll();
+    msg.textContent = "動滋動滋!!";
+    let angle = 0;
+    let dir = 1;
+
+    interval = setInterval(()=>{
+        angle += dir * 20;
+        if(angle > 30 || angle < -30) dir *= -1;
+        updateChicken(0,0,angle);
+    }, 120);
+
+    setTimeout(()=>{
+        stopAll();
+        goCenterSleep();
+    }, 3000);
+}
+
+// 口渴：雞走到島右下角海邊
+function drink(){
+    stopAll();
+    msg.textContent = "去喝海水...";
+    const dx = 150; // 假設海邊位置
+    const dy = 80;
+    updateChicken(dx, dy,0);
+
+    setTimeout(()=>{
+        stopAll();
+        goCenterSleep();
+    }, 2500);
+}
+</script>
+
+</body>
 </html>
